@@ -1,6 +1,8 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:cryptotrackerapi/constants/Theme.dart';
 import 'package:cryptotrackerapi/pages/homepage.dart';
 import 'package:cryptotrackerapi/providers/MarketProvider.dart';
+import 'package:cryptotrackerapi/providers/theme_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,16 +17,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
-      ChangeNotifierProvider<MarketProvider>(create: (context)=> MarketProvider(),)
+      ChangeNotifierProvider<MarketProvider>(create: (context)=> MarketProvider(),),
+      ChangeNotifierProvider<ThemeProvider>(create: (context)=>ThemeProvider())
     ],
-      child: MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
+    child: Consumer<ThemeProvider>(
+      builder: (context,provider,child){
+        return MaterialApp(
+          theme:lighttheme,
+          darkTheme: darktheme,
+themeMode: provider.themeMode,
+          title: 'Flutter Demo',
 
-        primarySwatch: Colors.grey,
-      ),
-      home: Homepage(),
-    )
+          debugShowCheckedModeBanner: false,
+
+          home: Homepage(),
+        );
+      },
+    ),
+
     );
   }
 

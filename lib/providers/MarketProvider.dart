@@ -1,5 +1,6 @@
 
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
@@ -14,15 +15,16 @@ class MarketProvider with ChangeNotifier{
     fetchData();
   }
   void fetchData() async{
- List<dynamic> _markets  = await API.getMarkets();
+ List<dynamic> _markets  = await API.getMarkets();//  here it get the list of maps
  List<Cryptocurrency> temp =[];
  for(var market in _markets){
-Cryptocurrency cryptocurrency = Cryptocurrency.fromJSON(market);
+Cryptocurrency cryptocurrency = Cryptocurrency.fromJSON(market); // market is map and is coverted to cryptocurrency
 temp.add(cryptocurrency);
  }
 markets=temp;
  log(isloading.toString());
  isloading=false;
  notifyListeners();
+ Timer(const Duration(seconds: 3), () {fetchData(); });
   }
 }

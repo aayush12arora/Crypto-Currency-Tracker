@@ -1,6 +1,7 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cryptotrackerapi/models/cryptocurrency.dart';
 import 'package:cryptotrackerapi/providers/MarketProvider.dart';
+import 'package:cryptotrackerapi/providers/theme_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 class Homepage extends StatefulWidget {
@@ -13,7 +14,7 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
-
+ThemeProvider themeProvider =Provider.of<ThemeProvider>(context,listen: false);
     return Scaffold(
       body: SafeArea(
         child: Container(
@@ -23,7 +24,15 @@ class _HomepageState extends State<Homepage> {
             SizedBox(
               height: 33,
             ),
-            buildAnimatedText(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                buildAnimatedText(),
+                IconButton(onPressed: (){
+themeProvider.toggleTheme();
+                }, icon: (themeProvider.themeMode==ThemeMode.dark)?Icon(Icons.dark_mode):Icon(Icons.light_mode))
+              ],
+            ),
 
             Expanded(child: Consumer<MarketProvider>(
               builder: (context,marketProvider,child){
@@ -41,7 +50,22 @@ class _HomepageState extends State<Homepage> {
                         Cryptocurrency currentcryp = marketProvider.markets[index];
                         return ListTile(
 subtitle:  Text(currentcryp.symbol!.toUpperCase()),
-                          trailing: Text(currentcryp.currentPrice.toString()),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("₹ "+currentcryp.currentPrice!.toStringAsFixed(4),style: TextStyle(color: Colors.black87,fontSize: 18,fontWeight: FontWeight.bold),),
+                         Builder(builder:(context){
+                           double priceChange = currentcryp.priceChange24!;
+                           double priceChangePercentage = currentcryp.priceChangePercentage24!;
+                           if(priceChange<0){
+return Text("-${priceChangePercentage.toStringAsFixed(2)}%(-${priceChange.toStringAsFixed(3)})",style: TextStyle(color: Colors.red),);
+                           }
+                           else{
+return Text("+${priceChangePercentage.toStringAsFixed(2)}%(+${priceChange.toStringAsFixed(3)})",style: TextStyle(color: Colors.green),);
+                           }
+                         })
+                            ],
+                          ),
                           title: Text(currentcryp.name!),
                           leading: CircleAvatar(
                             backgroundImage: NetworkImage(currentcryp.image!),
