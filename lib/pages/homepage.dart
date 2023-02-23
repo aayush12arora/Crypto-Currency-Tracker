@@ -1,5 +1,8 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:cryptotrackerapi/models/cryptocurrency.dart';
+import 'package:cryptotrackerapi/pages/DetailsPage.dart';
+import 'package:cryptotrackerapi/pages/Favorites.dart';
+import 'package:cryptotrackerapi/pages/Markets.dart';
 import 'package:cryptotrackerapi/providers/MarketProvider.dart';
 import 'package:cryptotrackerapi/providers/theme_Provider.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +14,22 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _HomepageState extends State<Homepage> with TickerProviderStateMixin{
+   late TabController viewcontroller ;
+
+   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    viewcontroller = TabController(length: 2, vsync: this);
+  }
   @override
   Widget build(BuildContext context) {
 ThemeProvider themeProvider =Provider.of<ThemeProvider>(context,listen: false);
     return Scaffold(
       body: SafeArea(
         child: Container(
-          width: 400,
+          width: double.infinity,
           padding: EdgeInsets.only(left: 20,top: 20),
           child: Column(children: [
             SizedBox(
@@ -33,54 +44,27 @@ themeProvider.toggleTheme();
                 }, icon: (themeProvider.themeMode==ThemeMode.dark)?Icon(Icons.dark_mode):Icon(Icons.light_mode))
               ],
             ),
+TabBar(
+    controller: viewcontroller,
+    tabs: [
+  Tab(
+    child: Text("Markets",style: Theme.of(context).textTheme.bodyMedium,),
+  ),
 
-            Expanded(child: Consumer<MarketProvider>(
-              builder: (context,marketProvider,child){
-                if(marketProvider.isloading==true){
-                  return Center(child: CircularProgressIndicator());
-                }
-                else {
-                  if (marketProvider.markets.length > 0) {
-                    return ListView.builder(
-                      physics: BouncingScrollPhysics(
-                        parent: AlwaysScrollableScrollPhysics(),
-                      ),
-                      itemCount: marketProvider.markets.length,
-                        itemBuilder: (context,index){
-                        Cryptocurrency currentcryp = marketProvider.markets[index];
-                        return ListTile(
-subtitle:  Text(currentcryp.symbol!.toUpperCase()),
-                          trailing: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text("₹ "+currentcryp.currentPrice!.toStringAsFixed(4),style: TextStyle(color: Colors.black87,fontSize: 18,fontWeight: FontWeight.bold),),
-                         Builder(builder:(context){
-                           double priceChange = currentcryp.priceChange24!;
-                           double priceChangePercentage = currentcryp.priceChangePercentage24!;
-                           if(priceChange<0){
-return Text("-${priceChangePercentage.toStringAsFixed(2)}%(-${priceChange.toStringAsFixed(3)})",style: TextStyle(color: Colors.red),);
-                           }
-                           else{
-return Text("+${priceChangePercentage.toStringAsFixed(2)}%(+${priceChange.toStringAsFixed(3)})",style: TextStyle(color: Colors.green),);
-                           }
-                         })
-                            ],
-                          ),
-                          title: Text(currentcryp.name!),
-                          leading: CircleAvatar(
-                            backgroundImage: NetworkImage(currentcryp.image!),
-                          ),
-                        );
-                        });
-                  }
-                  else{
-                    return Text('data not found');
-                  }
-                }
-              },
+  Tab(
+    child: Text("Favourites",style: Theme.of(context).textTheme.bodyMedium,),
+  ),
+]),
+            Expanded(
+              flex: 1,
+              child: TabBarView(
+                  controller: viewcontroller,
+                  children: [
+                Markets(),
+                Favorites()
 
-
-            ))
+              ]),
+            )
 
           ],
           ),
